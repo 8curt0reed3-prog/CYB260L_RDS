@@ -1,0 +1,103 @@
+# Description of what this change includes
+# Creates a VPC (VPC-antree9584) with 3 subnets across 3 AZs in us-west-2
+# and deploys a MySQL RDS instance within those subnets.
+# Revision number
+# 2.0
+# Date
+# 2026-02-19
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Creates a single VPC (VPC-antree9584) with 3 subnets across 3 Availability Zones in us-west-2,
+  and deploys a MySQL RDS instance within those subnets.
+
+# IMPORTANT:
+# CloudFormation stacks are REGION-SCOPED. Launch this stack in us-west-2.
+
+Parameters:
+  DBMasterUsername:
+    Type: String
+    Default: admin
+    Description: Master username for the RDS instance
+
+  DBMasterUserPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 8
+    Description: Master user password for the RDS instance (8+ characters)
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: VPC-antree9584
+
+  SubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select
+        - 0
+        - !GetAZs "us-west-2"
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: VPC-antree9584-subnet-a
+
+  SubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select
+        - 1
+        - !GetAZs "us-west-2"
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: VPC-antree9584-subnet-b
+
+  SubnetC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: !Select
+        - 2
+        - !GetAZs "us-west-2"
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: VPC-antree9584-subnet-c
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow MySQL access from within the VPC only
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 10.0.0.0/16
+      Tags:
+        - Key: Name
+          Value: VPC-antree9584-rds-sg
+
+  RDSSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDS across 3 AZs
+      SubnetIds:
+        - !Ref SubnetA
+        - !Ref SubnetB
+        - !Ref SubnetC
+      Tags:
+        - Key: Name
+          Va
