@@ -1,9 +1,5 @@
-# Description of what this change includes
-# Creates a VPC (VPC-antree9584) with 3 subnets across 3 AZs in us-west-2
-# and deploys a MySQL RDS instance within those subnets.
-# Revision number
+# Creates a VPC (VPC-antree9584) with 3 subnets
 # 2.0
-# Date
 # 2026-02-19
 
 AWSTemplateFormatVersion: "2010-09-09"
@@ -101,3 +97,4 @@ Resources:
       Tags:
         - Key: Name
           Va
+
